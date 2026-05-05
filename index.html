@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CFIT — Тест на интеллект Кэттелла</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    /* === SCREENS === */
+    .screen { display: none; }
+    .screen.active { display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* === WELCOME SCREEN === */
+    #welcome {
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      color: white;
+    }
+
+    .welcome-card {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px;
+      padding: 50px 40px;
+      max-width: 650px;
+      width: 100%;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .welcome-card .logo {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+
+    .welcome-card h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .welcome-card .subtitle {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 32px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 32px;
+      text-align: left;
+    }
+
+    .info-item {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    .info-item .label {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .info-item .value {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .desc-text {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.7;
+      margin-bottom: 32px;
+      text-align: left;
+    }
+
+    /* === BUTTONS === */
+    .btn-primary {
+      background: linear-gradient(135deg, #e94560, #c0392b);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 16px 48px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.5px;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(233,69,96,0.4); }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 10px;
+      padding: 12px 32px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+
+    .btn-next {
+      background: #0f3460;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 36px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-next:hover { background: #16213e; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+    .btn-next:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* === INSTRUCTION SCREEN === */
+    #instruction {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: white;
+    }
+
+    .instruction-header {
+      background: rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .subtest-badge {
+      background: #e94560;
+      color: white;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .instruction-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 20px;
+    }
+
+    .instruction-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 24px;
+      max-width: 900px;
+      width: 100%;
+      margin-bottom: 24px;
+    }
+
+    .instruction-card h2 {
+      font-size: 1.4rem;
+      margin-bottom: 12px;
+      color: #e94560;
+    }
+
+    .instruction-card p {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.8);
+    }
+
+    .timer-preview {
+      background: rgba(233,69,96,0.1);
+      border: 1px solid rgba(233,69,96,0.3);
+      border-radius: 12px;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .timer-preview .clock-icon { font-size: 1.5rem; }
+    .timer-preview strong { color: #e94560; font-size: 1.1rem; }
+
+    .instruction-image-wrap {
+      max-width: 900px;
+      width: 100%;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .instruction-image-wrap img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* === QUESTION SCREEN === */
+    #question {
+      background: #f0f2f5;
+    }
+
+    .question-header {
+      background: white;
+      border-bottom: 2px solid #e94560;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .question-header .subtest-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .question-header .badge {
+      background: #e94560;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .question-header .subtest-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #1a1a2e;
+    }
+
+    .timer-display {
+      background: #1a1a2e;
+      color: white;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      min-width: 80px;
+      text-align: center;
+    }
+    .timer-display.warning { background: #e67e22; }
+    .timer-display.danger { background: #e94560; }
+
+    .progress-bar-wrap {
+      height: 4px;
+      background: #e0e0e0;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #e94560, #c0392b);
+      transition: width 1s linear;
+    }
+
+    .question-content {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 20px;
+    }
+
+    .question-image-wrap {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-bottom: 24px;
+    }
+
+    .question-image-wrap img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .answers-section {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-bottom: 24px;
+    }
+
+    .answers-section h3 {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .question-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .question-row:last-child { border-bottom: none; }
+
+    .question-num {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #1a1a2e;
+      width: 32px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .answer-options {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .answer-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      border: 2px solid #ddd;
+      background: white;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: #333;
+    }
+    .answer-btn:hover {
+      border-color: #e94560;
+      color: #e94560;
+      background: #fff5f7;
+    }
+    .answer-btn.selected {
+      background: #e94560;
+      border-color: #e94560;
+      color: white;
+    }
+
+    .question-status {
+      margin-left: auto;
+      font-size: 0.8rem;
+    }
+    .question-status .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ddd;
+      display: inline-block;
+    }
+    .question-status .dot.answered { background: #27ae60; }
+
+    .nav-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 0 32px;
+    }
+
+    .nav-footer .page-indicator {
+      font-size: 0.9rem;
+      color: #888;
+    }
+
+    /* === RESULTS SCREEN === */
+    #results {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      color: white;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .results-card {
+      max-width: 680px;
+      width: 100%;
+    }
+
+    .results-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .results-header h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .iq-circle {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #e94560, #c0392b);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: 0 0 0 8px rgba(233,69,96,0.2), 0 0 0 16px rgba(233,69,96,0.1);
+    }
+
+    .iq-circle .iq-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      opacity: 0.8;
+    }
+
+    .iq-circle .iq-value {
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .iq-interpretation {
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .iq-description {
+      text-align: center;
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 32px;
+    }
+
+    .scores-table {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+
+    .scores-table-header {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      padding: 12px 20px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.5);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .scores-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.9rem;
+      align-items: center;
+    }
+    .scores-row:last-child { border-bottom: none; }
+    .scores-row.part-header {
+      background: rgba(255,255,255,0.05);
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.7);
+    }
+
+    .score-correct { color: #27ae60; font-weight: 700; }
+    .score-total { color: rgba(255,255,255,0.5); }
+    .score-pct {
+      font-size: 0.8rem;
+      background: rgba(255,255,255,0.05);
+      padding: 4px 8px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .total-row {
+      background: rgba(233,69,96,0.1);
+      border-top: 1px solid rgba(233,69,96,0.3) !important;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .iq-scale {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 32px;
+    }
+
+    .iq-scale h4 {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .scale-bar {
+      position: relative;
+      height: 12px;
+      background: linear-gradient(90deg, #e74c3c 0%, #e67e22 20%, #f1c40f 40%, #2ecc71 60%, #3498db 80%, #9b59b6 100%);
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    .scale-marker {
+      position: absolute;
+      top: -4px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      border: 3px solid #e94560;
+      transform: translateX(-50%);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .scale-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .btn-restart {
+      display: block;
+      width: 100%;
+      background: linear-gradient(135deg, #e94560, #c0392b);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-restart:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(233,69,96,0.4); }
+
+    /* === UTILITIES === */
+    @media (max-width: 600px) {
+      .info-grid { grid-template-columns: 1fr; }
+      .welcome-card { padding: 32px 20px; }
+      .answer-btn { width: 40px; height: 40px; font-size: 0.9rem; }
+      .scores-table-header, .scores-row { grid-template-columns: 1.5fr 1fr 1fr 1fr; font-size: 0.8rem; }
+    }
+
+    .fade-in { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+<!-- ===== SCREEN 1: WELCOME ===== -->
+<div id="welcome" class="screen active">
+  <div class="welcome-card fade-in">
+    <div class="logo">🧠</div>
+    <h1>Тест на интеллект CFIT</h1>
+    <p class="subtitle">Culture Free Intelligence Test · Р. Кэттелл, 1958</p>
+
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="label">Субтестов</div>
+        <div class="value">8 (2 части × 4)</div>
+      </div>
+      <div class="info-item">
+        <div class="label">Заданий</div>
+        <div class="value">92 вопроса</div>
+      </div>
+      <div class="info-item">
+        <div class="label">Время (Часть I)</div>
+        <div class="value">4 мин. / субтест</div>
+      </div>
+      <div class="info-item">
+        <div class="label">Время (Часть II)</div>
+        <div class="value">3 мин. / субтест</div>
+      </div>
+    </div>
+
+    <p class="desc-text">
+      Тест предназначен для определения уровня интеллектуального развития независимо от влияния таких факторов, как культурный уровень, образование и т.д. Все задания имеют только одно правильное решение. Внимательно изучайте инструкцию перед каждым субтестом и не переходите к следующему без команды.
+    </p>
+
+    <button class="btn-primary" onclick="startTest()">Начать тест</button>
+  </div>
+</div>
+
+<!-- ===== SCREEN 2: INSTRUCTION ===== -->
+<div id="instruction" class="screen">
+  <div class="instruction-header">
+    <div>
+      <span class="subtest-badge" id="inst-badge">Субтест 1</span>
+    </div>
+    <span style="color: rgba(255,255,255,0.5); font-size: 0.9rem;" id="inst-progress"></span>
+  </div>
+
+  <div class="instruction-content">
+    <div class="instruction-card fade-in">
+      <h2 id="inst-title">Субтест 1 — Ряды</h2>
+      <p id="inst-desc">Инструкция...</p>
+    </div>
+
+    <div class="timer-preview fade-in">
+      <span class="clock-icon">⏱️</span>
+      <div>
+        Время на выполнение: <strong id="inst-time">4 минуты</strong>. Таймер запустится после нажатия кнопки «Начать».
+      </div>
+    </div>
+
+    <div class="instruction-image-wrap fade-in">
+      <img id="inst-image" src="" alt="Инструкция">
+    </div>
+
+    <button class="btn-primary" onclick="startSubtest()">Начать субтест →</button>
+  </div>
+</div>
+
+<!-- ===== SCREEN 3: QUESTIONS ===== -->
+<div id="question" class="screen">
+  <div class="question-header">
+    <div class="question-subtest-info" style="display:flex; align-items:center; gap:12px;">
+      <span class="badge" id="q-badge">Субтест 1</span>
+      <span class="subtest-name" id="q-name">Часть 1, Субтест 1</span>
+    </div>
+    <div class="timer-display" id="timer">4:00</div>
+  </div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="progress-bar" style="width:100%"></div>
+  </div>
+
+  <div class="question-content fade-in">
+    <div class="question-image-wrap">
+      <img id="q-image" src="" alt="Задания">
+    </div>
+
+    <div class="answers-section">
+      <h3 id="q-section-title">Выберите ответ для каждого задания на странице:</h3>
+      <div id="q-answers"></div>
+    </div>
+
+    <div class="nav-footer">
+      <span class="page-indicator" id="q-page-indicator"></span>
+      <button class="btn-next" id="btn-next" onclick="nextPage()">Следующая страница →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SCREEN 4: RESULTS ===== -->
+<div id="results" class="screen">
+  <div class="results-card fade-in">
+    <div class="results-header">
+      <h2>Результаты теста</h2>
+    </div>
+
+    <div class="iq-circle">
+      <span class="iq-label">IQ</span>
+      <span class="iq-value" id="iq-value">—</span>
+    </div>
+
+    <div class="iq-interpretation" id="iq-interpretation"></div>
+    <div class="iq-description" id="iq-description"></div>
+
+    <div class="iq-scale">
+      <h4>Шкала IQ</h4>
+      <div class="scale-bar">
+        <div class="scale-marker" id="scale-marker" style="left:50%"></div>
+      </div>
+      <div class="scale-labels">
+        <span>70</span>
+        <span>85</span>
+        <span>100</span>
+        <span>115</span>
+        <span>130</span>
+        <span>145+</span>
+      </div>
+    </div>
+
+    <div class="scores-table">
+      <div class="scores-table-header">
+        <span>Субтест</span>
+        <span>Правильно</span>
+        <span>Всего</span>
+        <span>%</span>
+      </div>
+      <div id="scores-body"></div>
+    </div>
+
+    <button class="btn-restart" onclick="restartTest()">Пройти тест заново</button>
+  </div>
+</div>
+
+<script>
+  // ============================================================
+  //  TEST CONFIGURATION
+  // ============================================================
+  const SUBTESTS = [
+    {
+      id: 'p1t1',
+      name: 'Часть I · Субтест 1',
+      shortName: 'Ч1 Суб1',
+      type: 'Ряды',
+      desc: 'В каждом ряду выберите из пяти фигур справа ту, которая наиболее подходит к трём фигурам слева. Внимательно смотрите на образцы в начале страницы.',
+      instructionPage: 3,
+      pages: [
+        { img: 4, questions: [1, 2, 3, 4, 5, 6] },
+        { img: 5, questions: [7, 8, 9, 10, 11, 12] }
+      ],
+      total: 12,
+      timeLimit: 4 * 60,
+      key: [4, 2, 1, 5, 3, 5, 2, 3, 2, 1, 4, 3]
+    },
+    {
+      id: 'p1t2',
+      name: 'Часть I · Субтест 2',
+      shortName: 'Ч1 Суб2',
+      type: 'Классификация',
+      desc: 'В каждом ряду найдите фигуру, которая отличается от четырёх остальных, то есть не подходит к ним.',
+      instructionPage: 6,
+      pages: [
+        { img: 7, questions: [1, 2, 3, 4, 5, 6, 7] },
+        { img: 8, questions: [8, 9, 10, 11, 12, 13, 14] }
+      ],
+      total: 14,
+      timeLimit: 4 * 60,
+      key: [2, 3, 4, 3, 3, 1, 4, 3, 5, 3, 3, 5, 3, 2]
+    },
+    {
+      id: 'p1t3',
+      name: 'Часть I · Субтест 3',
+      shortName: 'Ч1 Суб3',
+      type: 'Матрицы',
+      desc: 'Выберите из пяти вариантов справа квадратик с рисунком, который подходит на место пустого квадратика, чтобы дополнить общий рисунок.',
+      instructionPage: 9,
+      pages: [
+        { img: 10, questions: [1, 2, 3, 4, 5, 6] },
+        { img: 11, questions: [7, 8, 9, 10, 11, 12] }
+      ],
+      total: 12,
+      timeLimit: 4 * 60,
+      key: [3, 2, 1, 5, 4, 1, 3, 2, 5, 1, 2, 2]
+    },
+    {
+      id: 'p1t4',
+      name: 'Часть I · Субтест 4',
+      shortName: 'Ч1 Суб4',
+      type: 'Топология',
+      desc: 'Внимательно разглядите, где расположена точка в фигуре-образце слева, и выберите из пяти фигур справа ту, в которой точку можно расположить точно таким же образом.',
+      instructionPage: 12,
+      pages: [
+        { img: 13, questions: [1, 2, 3, 4, 5, 6, 7, 8] }
+      ],
+      total: 8,
+      timeLimit: 4 * 60,
+      key: [3, 4, 2, 3, 1, 1, 3, 2]
+    },
+    {
+      id: 'p2t1',
+      name: 'Часть II · Субтест 1',
+      shortName: 'Ч2 Суб1',
+      type: 'Ряды',
+      desc: 'В каждом ряду выберите из пяти фигур справа ту, которая наиболее подходит к трём фигурам слева.',
+      instructionPage: 14,
+      pages: [
+        { img: 15, questions: [1, 2, 3, 4, 5, 6] },
+        { img: 16, questions: [7, 8, 9, 10, 11, 12] }
+      ],
+      total: 12,
+      timeLimit: 3 * 60,
+      key: [3, 4, 4, 3, 2, 3, 3, 5, 4, 1, 3, 1]
+    },
+    {
+      id: 'p2t2',
+      name: 'Часть II · Субтест 2',
+      shortName: 'Ч2 Суб2',
+      type: 'Классификация',
+      desc: 'В каждом ряду найдите фигуру, которая отличается от четырёх остальных.',
+      instructionPage: 17,
+      pages: [
+        { img: 18, questions: [1, 2, 3, 4, 5, 6, 7] },
+        { img: 19, questions: [8, 9, 10, 11, 12, 13, 14] }
+      ],
+      total: 14,
+      timeLimit: 3 * 60,
+      key: [2, 3, 4, 3, 3, 1, 4, 3, 1, 1, 3, 1, 3, 4]
+    },
+    {
+      id: 'p2t3',
+      name: 'Часть II · Субтест 3',
+      shortName: 'Ч2 Суб3',
+      type: 'Матрицы',
+      desc: 'Выберите квадратик с рисунком, который подходит на место пустого квадратика.',
+      instructionPage: 20,
+      pages: [
+        { img: 21, questions: [1, 2, 3, 4, 5, 6] },
+        { img: 22, questions: [7, 8, 9, 10, 11, 12] }
+      ],
+      total: 12,
+      timeLimit: 3 * 60,
+      key: [3, 2, 1, 5, 4, 1, 3, 2, 5, 1, 2, 2]
+    },
+    {
+      id: 'p2t4',
+      name: 'Часть II · Субтест 4',
+      shortName: 'Ч2 Суб4',
+      type: 'Топология',
+      desc: 'Найдите из пяти фигур справа ту, в которой точку можно расположить так же, как в образце.',
+      instructionPage: 23,
+      pages: [
+        { img: 24, questions: [1, 2, 3, 4, 5, 6, 7, 8] }
+      ],
+      total: 8,
+      timeLimit: 3 * 60,
+      key: [3, 4, 2, 3, 1, 1, 2, 2]
+    }
+  ];
+
+  // IQ conversion table (adult norms)
+  const IQ_TABLE = {
+    21:53, 22:54, 23:55, 24:56, 25:57, 26:58, 27:59, 28:60, 29:61, 30:62,
+    31:63, 32:64, 33:65, 34:66, 35:67, 36:68, 37:69, 38:70, 39:71, 40:72,
+    41:73, 42:74, 43:75, 44:76, 45:77, 46:78, 47:79, 48:80, 49:81, 50:82,
+    51:83, 52:84, 53:85, 54:86, 55:87, 56:88, 57:90, 58:91, 59:93, 60:94,
+    61:95, 62:96, 63:98, 64:100, 65:101, 66:102, 67:104, 68:105, 69:106, 70:107,
+    71:109, 72:111, 73:113, 74:115, 75:117, 76:119, 77:121, 78:123, 79:125, 80:127,
+    81:129, 82:131, 83:133, 84:136, 85:140, 86:143, 87:146, 88:149
+  };
+
+  // ============================================================
+  //  STATE
+  // ============================================================
+  let state = {
+    subtestIndex: 0,
+    pageIndex: 0,
+    userAnswers: {}, // { 'p1t1_q1': 3, ... }
+    timerInterval: null,
+    timeLeft: 0
+  };
+
+  // ============================================================
+  //  HELPERS
+  // ============================================================
+  function imgSrc(n) {
+    return `images/page-${String(n).padStart(2, '0')}.png`;
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function formatTime(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  }
+
+  function getSubtest() { return SUBTESTS[state.subtestIndex]; }
+
+  function answerKey(subtestId, qNum) {
+    return `${subtestId}_q${qNum}`;
+  }
+
+  // ============================================================
+  //  FLOW: START TEST
+  // ============================================================
+  function startTest() {
+    state = {
+      subtestIndex: 0,
+      pageIndex: 0,
+      userAnswers: {},
+      timerInterval: null,
+      timeLeft: 0
+    };
+    showInstruction();
+  }
+
+  function restartTest() {
+    startTest();
+  }
+
+  // ============================================================
+  //  FLOW: INSTRUCTION SCREEN
+  // ============================================================
+  function showInstruction() {
+    const st = getSubtest();
+    const totalSubtests = SUBTESTS.length;
+    const mins = Math.floor(st.timeLimit / 60);
+
+    document.getElementById('inst-badge').textContent = st.name;
+    document.getElementById('inst-progress').textContent =
+      `Субтест ${state.subtestIndex + 1} из ${totalSubtests}`;
+    document.getElementById('inst-title').textContent =
+      `${st.name} — ${st.type}`;
+    document.getElementById('inst-desc').textContent = st.desc;
+    document.getElementById('inst-time').textContent = `${mins} минут${mins === 4 ? 'ы' : ''}`;
+    document.getElementById('inst-image').src = imgSrc(st.instructionPage);
+
+    showScreen('instruction');
+  }
+
+  // ============================================================
+  //  FLOW: START SUBTEST (begin timer + show first page)
+  // ============================================================
+  function startSubtest() {
+    const st = getSubtest();
+    state.pageIndex = 0;
+    state.timeLeft = st.timeLimit;
+    clearInterval(state.timerInterval);
+
+    state.timerInterval = setInterval(() => {
+      state.timeLeft--;
+      updateTimerDisplay();
+      if (state.timeLeft <= 0) {
+        clearInterval(state.timerInterval);
+        onTimerEnd();
+      }
+    }, 1000);
+
+    renderQuestionPage();
+    showScreen('question');
+  }
+
+  function updateTimerDisplay() {
+    const el = document.getElementById('timer');
+    const bar = document.getElementById('progress-bar');
+    const st = getSubtest();
+    const ratio = state.timeLeft / st.timeLimit;
+
+    el.textContent = formatTime(state.timeLeft);
+    bar.style.width = (ratio * 100) + '%';
+
+    el.className = 'timer-display';
+    if (state.timeLeft <= 30) el.classList.add('danger');
+    else if (state.timeLeft <= 60) el.classList.add('warning');
+  }
+
+  function onTimerEnd() {
+    // Auto-advance to next subtest
+    advanceSubtest();
+  }
+
+  // ============================================================
+  //  FLOW: RENDER QUESTION PAGE
+  // ============================================================
+  function renderQuestionPage() {
+    const st = getSubtest();
+    const page = st.pages[state.pageIndex];
+    const totalPages = st.pages.length;
+
+    document.getElementById('q-badge').textContent = `Субтест ${state.subtestIndex + 1}`;
+    document.getElementById('q-name').textContent = st.name;
+    document.getElementById('q-image').src = imgSrc(page.img);
+    document.getElementById('q-section-title').textContent =
+      `Выберите ответ для каждого задания (${page.questions[0]}–${page.questions[page.questions.length - 1]}):`;
+    document.getElementById('q-page-indicator').textContent =
+      `Страница ${state.pageIndex + 1} из ${totalPages}`;
+
+    const isLastPage = state.pageIndex === totalPages - 1;
+    const isLastSubtest = state.subtestIndex === SUBTESTS.length - 1;
+    const btnNext = document.getElementById('btn-next');
+
+    if (isLastPage && isLastSubtest) {
+      btnNext.textContent = 'Завершить тест ✓';
+    } else if (isLastPage) {
+      btnNext.textContent = 'Следующий субтест →';
+    } else {
+      btnNext.textContent = 'Следующая страница →';
+    }
+
+    renderAnswerButtons(st, page);
+    updateTimerDisplay();
+  }
+
+  function renderAnswerButtons(st, page) {
+    const container = document.getElementById('q-answers');
+    container.innerHTML = '';
+
+    page.questions.forEach(qNum => {
+      const key = answerKey(st.id, qNum);
+      const selected = state.userAnswers[key] || null;
+
+      const row = document.createElement('div');
+      row.className = 'question-row';
+
+      const numEl = document.createElement('div');
+      numEl.className = 'question-num';
+      numEl.textContent = qNum;
+      row.appendChild(numEl);
+
+      const optionsEl = document.createElement('div');
+      optionsEl.className = 'answer-options';
+
+      for (let i = 1; i <= 5; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'answer-btn' + (selected === i ? ' selected' : '');
+        btn.textContent = i;
+        btn.onclick = (function(qn, val) {
+          return function() { selectAnswer(qn, val); };
+        })(qNum, i);
+        optionsEl.appendChild(btn);
+      }
+      row.appendChild(optionsEl);
+
+      const status = document.createElement('div');
+      status.className = 'question-status';
+      const dot = document.createElement('div');
+      dot.className = 'dot' + (selected ? ' answered' : '');
+      dot.id = `dot-${st.id}-q${qNum}`;
+      status.appendChild(dot);
+      row.appendChild(status);
+
+      container.appendChild(row);
+    });
+  }
+
+  function selectAnswer(qNum, value) {
+    const st = getSubtest();
+    const key = answerKey(st.id, qNum);
+    state.userAnswers[key] = value;
+
+    // Update UI without full re-render
+    const page = st.pages[state.pageIndex];
+    page.questions.forEach(q => {
+      const k = answerKey(st.id, q);
+      document.querySelectorAll(`#q-answers .question-row`).forEach((row, idx) => {
+        if (page.questions[idx] === q) {
+          row.querySelectorAll('.answer-btn').forEach((btn, i) => {
+            btn.className = 'answer-btn' + (state.userAnswers[k] === i + 1 ? ' selected' : '');
+          });
+          const dot = row.querySelector('.dot');
+          if (dot) dot.className = 'dot' + (state.userAnswers[k] ? ' answered' : '');
+        }
+      });
+    });
+  }
+
+  // ============================================================
+  //  FLOW: NAVIGATION
+  // ============================================================
+  function nextPage() {
+    const st = getSubtest();
+    const isLastPage = state.pageIndex === st.pages.length - 1;
+
+    if (isLastPage) {
+      advanceSubtest();
+    } else {
+      state.pageIndex++;
+      renderQuestionPage();
+      window.scrollTo(0, 0);
+    }
+  }
+
+  function advanceSubtest() {
+    clearInterval(state.timerInterval);
+    const isLast = state.subtestIndex === SUBTESTS.length - 1;
+
+    if (isLast) {
+      showResults();
+    } else {
+      state.subtestIndex++;
+      state.pageIndex = 0;
+      showInstruction();
+      window.scrollTo(0, 0);
+    }
+  }
+
+  // ============================================================
+  //  FLOW: RESULTS
+  // ============================================================
+  function calcResults() {
+    const subtestScores = SUBTESTS.map(st => {
+      let correct = 0;
+      st.key.forEach((ans, idx) => {
+        const k = answerKey(st.id, idx + 1);
+        if (state.userAnswers[k] === ans) correct++;
+      });
+      return { st, correct, total: st.total };
+    });
+
+    const totalCorrect = subtestScores.reduce((s, r) => s + r.correct, 0);
+    return { subtestScores, totalCorrect };
+  }
+
+  function lookupIQ(rawScore) {
+    if (rawScore >= 88) return 149;
+    if (rawScore <= 20) return 52;
+    return IQ_TABLE[rawScore] || null;
+  }
+
+  function iqLabel(iq) {
+    if (iq >= 140) return { text: 'Гений / Исключительный интеллект', color: '#9b59b6' };
+    if (iq >= 130) return { text: 'Очень высокий интеллект', color: '#3498db' };
+    if (iq >= 120) return { text: 'Высокий интеллект', color: '#2980b9' };
+    if (iq >= 110) return { text: 'Выше среднего', color: '#27ae60' };
+    if (iq >= 90)  return { text: 'Норма (средний уровень)', color: '#2ecc71' };
+    if (iq >= 80)  return { text: 'Ниже среднего', color: '#e67e22' };
+    if (iq >= 70)  return { text: 'Пограничный уровень', color: '#e74c3c' };
+    return { text: 'Значительное снижение интеллекта', color: '#c0392b' };
+  }
+
+  function showResults() {
+    const { subtestScores, totalCorrect } = calcResults();
+    const iq = lookupIQ(totalCorrect);
+    const label = iqLabel(iq);
+
+    document.getElementById('iq-value').textContent = iq;
+    document.getElementById('iq-interpretation').textContent = label.text;
+    document.getElementById('iq-description').textContent =
+      `Сырой балл: ${totalCorrect} / 92 · Средняя норма IQ: 90–110`;
+
+    // Scale marker (IQ 70 to 150)
+    const markerPct = Math.min(100, Math.max(0, ((iq - 70) / (150 - 70)) * 100));
+    document.getElementById('scale-marker').style.left = markerPct + '%';
+
+    // Scores table
+    const tbody = document.getElementById('scores-body');
+    tbody.innerHTML = '';
+
+    let p1total = 0, p1max = 0;
+    let p2total = 0, p2max = 0;
+
+    subtestScores.forEach((r, idx) => {
+      if (idx === 0) {
+        const hdr = document.createElement('div');
+        hdr.className = 'scores-row part-header';
+        hdr.innerHTML = '<span>ЧАСТЬ I</span><span></span><span></span><span></span>';
+        tbody.appendChild(hdr);
+      }
+      if (idx === 4) {
+        const hdr = document.createElement('div');
+        hdr.className = 'scores-row part-header';
+        hdr.innerHTML = '<span>ЧАСТЬ II</span><span></span><span></span><span></span>';
+        tbody.appendChild(hdr);
+      }
+
+      const pct = Math.round((r.correct / r.total) * 100);
+      const row = document.createElement('div');
+      row.className = 'scores-row';
+      row.innerHTML = `
+        <span>${r.st.name} (${r.st.type})</span>
+        <span class="score-correct">${r.correct}</span>
+        <span class="score-total">${r.total}</span>
+        <span class="score-pct">${pct}%</span>
+      `;
+      tbody.appendChild(row);
+
+      if (idx < 4) { p1total += r.correct; p1max += r.total; }
+      else { p2total += r.correct; p2max += r.total; }
+    });
+
+    // Total row
+    const totalRow = document.createElement('div');
+    totalRow.className = 'scores-row total-row';
+    totalRow.innerHTML = `
+      <span>Итого</span>
+      <span class="score-correct">${totalCorrect}</span>
+      <span class="score-total">92</span>
+      <span class="score-pct">${Math.round((totalCorrect/92)*100)}%</span>
+    `;
+    tbody.appendChild(totalRow);
+
+    showScreen('results');
+    window.scrollTo(0, 0);
+  }
+</script>
+</body>
+</html>
